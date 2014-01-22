@@ -161,7 +161,7 @@ describe('RedshiftCopyS3', function() {
 		var mock = createMock(1);
 
 		var filename = RedshiftCopyS3.prototype._generateFilename.call(mock.object);
-		assert.strictEqual(filename, 'prefix/tablename-1.1.1.1-1-now-123.log');
+		assert.strictEqual(filename, 'tablename-1.1.1.1-1-now-123.log');
 	});
 
 	it('generates a copy query', function () {
