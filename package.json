@@ -1,6 +1,6 @@
 {
   "name": "redshift-copy",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "description": "Automated data insertion into Amazon's Redshift using copy operation",
   "main": "index.js",
   "scripts": {
