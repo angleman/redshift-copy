@@ -1,8 +1,0 @@
-{
-    "aws": {
-        "region": "us-standard",
-        "accessKeyId": "myAccessKey",
-        "secretAccessKey": "mySecretAccessKey"
-        "bucketName": "your bucket name"
-    }
-}

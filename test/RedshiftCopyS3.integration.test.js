@@ -7,33 +7,31 @@ var knox = require('knox');
 var dbStuff = require('db-stuff');
 var rc = require('rc');
 
-var clientProviderClass = s3shield.S3ClientProviderSelector.get('knox');
-var clientProvider = new clientProviderClass();
-
 var config = rc('test');
 
 var testFunction = describe;
 var s3Client;
 
-if (!config.aws) {
+if (!config.redshiftCopyOptions.aws) {
 	testFunction = describe.skip;
-	console.log('skipping this test since no credentials were supplied (.testrc and/or .s3shieldrc)');
+	console.log('skipping this test since no credentials were supplied (.testrc)');
 } else {
 	s3Client = knox.createClient({
-	    key: 		config.aws.accessKeyId,
-	  	secret: 	config.aws.secretAccessKey,
-	  	bucket: 	config.aws.bucket,
-	  	region: 	config.aws.region,
-	  	endpoint: 	config.aws.endpoint
+	    key: 		config.redshiftCopyOptions.aws.accessKeyId,
+	  	secret: 	config.redshiftCopyOptions.aws.secretAccessKey,
+	  	bucket: 	config.redshiftCopyOptions.aws.bucket.split('/').shift(),
+	  	region: 	config.redshiftCopyOptions.aws.region,
+	  	endpoint: 	config.redshiftCopyOptions.aws.endpoint
 	});
 }
 
-var optionsMock = config.redshiftOptions;
+var optionsMock = config.redshiftCopyOptions;
+
 var rowsMock = [ [1000, '127.0.0.1', 'mockedId'], [2000, '127.0.0.2', 'mockedId2'] ];
 var testFile = '1000|127.0.0.1|mockedId\n2000|127.0.0.2|mockedId2\n';
 
-var selectQuery = 'SELECT * FROM ' + config.redshiftOptions.tableName + ' ORDER BY ip ASC;';
-var truncateQuery = 'TRUNCATE TABLE ' + config.redshiftOptions.tableName + ' ;';
+var selectQuery = 'SELECT * FROM ' + config.redshiftCopyOptions.tableName + ' ORDER BY ip ASC;';
+var truncateQuery = 'TRUNCATE TABLE ' + config.redshiftCopyOptions.tableName + ' ;';
 
 testFunction('RedshiftCopyS3', function(){
 	it('should upload file to s3 and load data to datastore', function(done){
@@ -61,7 +59,7 @@ testFunction('RedshiftCopyS3', function(){
 
 function initTest(callback) {
 	var services = {};
-	var ds = dbStuff.create(config.redshift, function(){
+	var ds = dbStuff.create(config.dbStuff, function(){
 		services.ds = ds;
 		callback(null, services);
 	});
@@ -77,7 +75,7 @@ function truncateTestTable(services, callback) {
 function doCopy(services, callback) {
 	console.log('Doing copy...');
 
-	var rsbl = new RedshiftCopyS3(services.ds, clientProvider, optionsMock, config.aws);
+	var rsbl = new RedshiftCopyS3(services.ds, s3shield.S3ClientProviderFactory, optionsMock);
 	services.rsbl = rsbl;
 
 	rsbl.on('flush', function(flushOp){

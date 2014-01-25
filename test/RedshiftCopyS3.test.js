@@ -68,10 +68,10 @@ function createMock(threshold) {
 	return mock;
 }
 
-function createS3ClientProviderMock() {
+function createS3ClientProviderFactoryMock() {
 	var mock = PolyMock.create();
 
-	mock.createMethod('get', {});
+	mock.createMethod('newInstance', {});
 
 	return mock;
 }
@@ -100,7 +100,7 @@ describe('RedshiftCopyS3', function() {
 
 		it('throws an error if no options are specified', function () {
 			try {
-				var rbl = new RedshiftCopyS3(testutil.createDatastoreMock(), createS3ClientProviderMock());
+				var rbl = new RedshiftCopyS3(testutil.createDatastoreMock(), createS3ClientProviderFactoryMock());
 				throw new Error('constructor should have thrown an error');
 			} catch (e) {
 				assert.strictEqual(e.message, 'missing options');
@@ -109,7 +109,7 @@ describe('RedshiftCopyS3', function() {
 
 		it('throws an error if no table name is not supplied in the options', function () {
 			try {
-				var rbl = new RedshiftCopyS3(testutil.createDatastoreMock(), createS3ClientProviderMock(),  {});
+				var rbl = new RedshiftCopyS3(testutil.createDatastoreMock(), createS3ClientProviderFactoryMock(),  {});
 				throw new Error('constructor should have thrown an error');
 			} catch (e) {
 				assert.strictEqual(e.message, 'missing or invalid table name');
@@ -118,7 +118,7 @@ describe('RedshiftCopyS3', function() {
 
 		it('throws an error if fields are missing in options', function () {
 			try {
-				var rbl = new RedshiftCopyS3(testutil.createDatastoreMock(), createS3ClientProviderMock(), { tableName: '123' });
+				var rbl = new RedshiftCopyS3(testutil.createDatastoreMock(), createS3ClientProviderFactoryMock(), { tableName: '123' });
 				throw new Error('constructor should have thrown an error');
 			} catch (e) {
 				assert.strictEqual(e.message, 'missing fields');
@@ -127,7 +127,7 @@ describe('RedshiftCopyS3', function() {
 
 		it('throws an error if fields are missing in options', function () {
 			try {
-				var rbl = new RedshiftCopyS3(testutil.createDatastoreMock(), createS3ClientProviderMock(), { tableName: '123', fields: [] });
+				var rbl = new RedshiftCopyS3(testutil.createDatastoreMock(), createS3ClientProviderFactoryMock(), { tableName: '123', fields: [] });
 				throw new Error('constructor should have thrown an error');
 			} catch (e) {
 				assert.strictEqual(e.message, 'missing fields');
@@ -137,7 +137,7 @@ describe('RedshiftCopyS3', function() {
 		it('throws an error if threshold is set to 0', function () {
 			try {
 				var options = { idleFlushPeriod: 0, tableName: 'asdlj', fields: [ '1' ], threshold: 0 };
-				var rbl = new RedshiftCopyS3(testutil.createDatastoreMock(), createS3ClientProviderMock(), options);
+				var rbl = new RedshiftCopyS3(testutil.createDatastoreMock(), createS3ClientProviderFactoryMock(), options);
 				throw new Error('constructor should have thrown an error');
 			} catch (e) {
 				assert.strictEqual(e.message, 'cannot set threshold to 0');
@@ -147,7 +147,7 @@ describe('RedshiftCopyS3', function() {
 		it('throws an error if idleFlushPeriod is set to 0', function () {
 			try {
 				var options = { idleFlushPeriod: 0, tableName: 'asdlj', fields: [ '1' ], threshold: 10 };
-				var rbl = new RedshiftCopyS3(testutil.createDatastoreMock(), createS3ClientProviderMock(), options);
+				var rbl = new RedshiftCopyS3(testutil.createDatastoreMock(), createS3ClientProviderFactoryMock(), options);
 				throw new Error('constructor should have thrown an error');
 			} catch (e) {
 				assert.strictEqual(e.message, 'cannot set idleFlushPeriod to 0');

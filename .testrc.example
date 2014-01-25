@@ -1,22 +1,22 @@
 {
-    "aws": {
-        "accessKeyId": "myAccessKey",
-        "secretAccessKey": "mySecretAccessKey",
-        "region": "us-standard",
-        "bucket": "myBucket"
-    },
-    "redshift": {			
+    "dbStuff": {
     	"implementation": "PostgresDatastore",
-    	"connectionString": "tcp://user:password@redshift.aws.amazon.com:5439/db",	
+    	"connectionString": "tcp://user:password@redshift.aws.amazon.com:5439/db",
     	"delimiter": "|",
     	"extension": "log"
     },
-    "redshiftOptions": { 
+    "redshiftCopyOptions": {
         "tableName": "public.redshiftcopy_test",
     	"fields": [ "event_timestamp", "ip", "id" ],
     	"delimiter": "|",
     	"extension": "log",
     	"threshold": 2,
-    	"idleFlushPeriod": 1000 
+    	"idleFlushPeriod": 1000,
+        "aws": {
+            "accessKeyId": "myAccessKey",
+            "secretAccessKey": "mySecretAccessKey",
+            "region": "us-standard",
+            "bucket": "myBucket"
+        }
     }
 }
