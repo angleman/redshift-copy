@@ -147,4 +147,26 @@ describe('RetryPolicy', function () {
 			assert.strictEqual(retries, 1)
 		}, 2000)
 	});
+
+	it('can use different retry algorithms with a string instead of a function', function () {
+		var mock = createRSBLMock();
+		var flushOpMock = createFlushOpMock();
+
+		var emitter = RetryPolicy.enableRetryPolicy(mock.object, { retryCalculation: 'constantInterval' });
+
+		var retries;
+
+		emitter.on('next flush', function(flushOp, _retries, job) {
+			assert.strictEqual(_retries, 1)
+			retries = _retries
+		});
+
+		mock.emitter.emit('flush', flushOpMock.object);
+
+		flushOpMock.emitter.emit('error', 'damn!', flushOpMock.object);
+
+		setTimeout(function() {
+			assert.strictEqual(retries, 1)
+		}, 2000)
+	});
 });
