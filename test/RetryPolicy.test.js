@@ -96,7 +96,7 @@ describe('RetryPolicy', function () {
 
 		var options = {
 			timeSlot: 2,
-			retryCalculation: RetryPolicy.exponentialBackoff,
+			retryCalculation: RetryPolicy.logarithmicProgression,
 			maxRetries: 3
 		};
 
@@ -104,9 +104,10 @@ describe('RetryPolicy', function () {
 
 		var retries = 0;
 
-		emitter.on('next flush', function(flushOp, job) {
+		emitter.on('next flush', function(flushOp, _retries, job) {
 			assert.strictEqual(flushOp, flushOpMock.object);
-			assert.ok(++retries <= 3);
+			assert.strictEqual(++retries, _retries)
+			assert.ok(retries <= 3);
 		});
 
 		emitter.on('no more retries', function (flushop) {
@@ -125,4 +126,25 @@ describe('RetryPolicy', function () {
 		}, 2000);
 	});
 
+	it('can use different retry algorithms', function () {
+		var mock = createRSBLMock();
+		var flushOpMock = createFlushOpMock();
+
+		var emitter = RetryPolicy.enableRetryPolicy(mock.object, { retryCalculation: RetryPolicy.constantInterval });
+
+		var retries;
+
+		emitter.on('next flush', function(flushOp, _retries, job) {
+			assert.strictEqual(_retries, 1)
+			retries = _retries
+		});
+
+		mock.emitter.emit('flush', flushOpMock.object);
+
+		flushOpMock.emitter.emit('error', 'damn!', flushOpMock.object);
+
+		setTimeout(function() {
+			assert.strictEqual(retries, 1)
+		}, 2000)
+	});
 });
